@@ -1,0 +1,58 @@
+Embedded C Program for the Third Eye is mentioned Below, the Below is coded in the wi-fi module (ESP 8266 or ESP 32)
+#include <Servo.h>
+
+// Define pin numbers
+const int trigPin = 9;
+const int echoPin = 10;
+const int vibrationMotorPin = 6;
+
+// Define servo motor
+Servo servoMotor;
+
+// Function to measure distance using the ultrasonic sensor
+float getDistance() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  
+  return pulseIn(echoPin, HIGH) * 0.034 / 2;
+}
+
+void setup() {
+  // Initialize serial communication
+  Serial.begin(9600);
+
+  // Initialize pins
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  pinMode(vibrationMotorPin, OUTPUT);
+
+  // Attach servo motor to pin 5
+  servoMotor.attach(5);
+}
+
+void loop() {
+  // Get distance from the ultrasonic sensor
+  float distance = getDistance();
+
+  // Print distance to the Serial Monitor
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  // Adjust servo motor based on distance
+  if (distance < 20) {
+    // If an obstacle is detected within 20 cm, move the servo to the left
+    servoMotor.write(0);
+    digitalWrite(vibrationMotorPin, HIGH); // Activate vibration motor
+  } else {
+    // If no obstacle is detected, move the servo to the center
+    servoMotor.write(90);
+    digitalWrite(vibrationMotorPin, LOW); // Deactivate vibration motor
+  }
+
+  // Delay for stability
+  delay(1000);
+}
